@@ -28,17 +28,26 @@
   },
   "dependencies": {
     "jshint-stylish": "~0.1.5",
-    "gulp-jshint": "~1.3.4"
+    "gulp-jshint": "~1.3.4",
+    "gulp-concat": "~2.1.7",
+    "gulp-uglify": "~0.2.0"
   },
   "keywords": [
     "ngbpplugin",
     "ngbpspell"
   ],
   "ngbp": {
-    "default": [ "webapp-build" ],
+    "default": [
+      "webapp-build",
+      "webapp-compile"
+    ],
     "paths": {
-      "source": "build",
-      "source_assets": "<%= paths.source %>/assets"
+      "source": "src",
+      "build": "build",
+      "compile": "bin",
+      "source_assets": "<%= paths.source %>/assets",
+      "build_js": "<%= paths.build %>/scripts",
+      "compile_assets": "<%= paths.compile %>/assets"
     },
     "globs": {
       "source": {
@@ -55,9 +64,15 @@
           "bitwise": true,
           "curly": true
         },
-        "reporter": "jshint-stylish"
-      }
+        "reporter": {},
+        "failOnError": {
+          "fail": true
+        }
+      },
+      "webapp-minjs": {
+        "outSourceMaps": true
+      },
+      "webapp-concatjs": "<%= pkg.name %>-<%= pkg.version %>.min.js"
     }
   }
 }
-
