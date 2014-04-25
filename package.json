@@ -1,0 +1,110 @@
+{
+  "name": "warlock-spell-webapp",
+  "version": "0.0.1",
+  "description": "A warlock spell to manage client-side web applications.",
+  "homepage": "https://github.com/ngbp/spell-webapp",
+  "author": {
+    "name": "Warlock Team",
+    "url": "http://getwarlock.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ngbp/spell-webapp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ngbp/spell-webapp"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/ngbp/spell-webapp/blob/master/LICENSE"
+    }
+  ],
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "keywords": [
+    "warlockplugin",
+    "warlockspell"
+  ],
+  "warlock": {
+    "default": [
+      "webapp-build",
+      "webapp-compile"
+    ],
+    "paths": {
+      "source": "src",
+      "build": "build",
+      "compile": "bin",
+      "source_app": "<%= paths.source %>/app",
+      "build_js": "<%= paths.build %>/scripts",
+      "build_css": "<%= paths.build %>/styles",
+      "source_assets": "<%= paths.source %>/assets",
+      "build_assets": "<%= paths.build %>/assets",
+      "compile_assets": "<%= paths.compile %>/assets"
+    },
+    "globs": {
+      "source": {
+        "css": [
+          "<%= paths.source_app %>/**/*.css"
+        ],
+        "js": [
+          "<%= paths.source_app %>/**/*.js",
+          "!<%= paths.source_app %>/**/*.spec.js"
+        ],
+        "assets": [
+          "<%= paths.source_assets %>/**/*"
+        ],
+        "html": [
+          "<%= paths.source %>/index.html",
+          "<%= paths.source_app %>/**/*.html"
+        ]
+      },
+      "vendor": {
+        "js": [],
+        "css": []
+      }
+    },
+    "tasks": {
+      "webapp-lintjs": {
+        "lint": {
+          "bitwise": true,
+          "curly": true
+        },
+        "reporter": {},
+        "failOnError": {
+          "fail": true
+        }
+      },
+      "webapp-minjs": {
+        "outSourceMap": true
+      },
+      "webapp-lintcss": {
+        "failOnError": {
+          "fail": true
+        }
+      },
+      "webapp-concatjs": "<%= pkg.name %>-<%= pkg.version %>.min.js",
+      "webapp-concatcss": "<%= pkg.name %>-<%= pkg.version %>.min.css",
+      "webapp-html-template": {
+        "build": "<%= paths.build %>",
+        "compile": "<%= paths.compile %>"
+      }
+    },
+    "template-data": {
+      "webappScripts": [],
+      "webappStyles": []
+    }
+  },
+  "peerDependencies": {
+    "warlock": "~1.0"
+  },
+  "devDependencies": {
+    "jshint-stylish": "~0.1",
+    "gulp-jshint": "~1.3",
+    "gulp-concat": "~2.1",
+    "gulp-uglify": "~0.2",
+    "gulp-minify-css": "~0.3",
+    "csslint": "0.10"
+  }
+}
