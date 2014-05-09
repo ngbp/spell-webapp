@@ -4,6 +4,8 @@ concat = require 'gulp-concat'
 uglify = require 'gulp-uglify'
 path = require 'path'
 
+util = require "./../lib/util"
+
 module.exports = ( warlock ) ->
   # A stream for adding files to the template data.
   # FIXME(JDM): I think this whole process is a little messy
@@ -18,6 +20,11 @@ module.exports = ( warlock ) ->
           warlock.config "template-data.webappScripts", [ filepath ], true
 
         file
+
+  sortFilesByVendor = ( options, stream ) ->
+    stream.collect()
+      .invoke( 'sort', [ util.sortVendorFirst warlock.config "globs.vendor.js" ] )
+      .flatten()
 
   ###
   # JavaScript: Source -> Build
@@ -42,11 +49,18 @@ module.exports = ( warlock ) ->
 
       file
   )
-  .add( 100, 'webapp-tpl.scripts', addToTemplateData( "paths.build_js" ) )
+  .add( 100, 'webapp-sort', sortFilesByVendor, { raw: true } )
+  .add( 110, 'webapp-tpl.scripts', addToTemplateData( "paths.build_js" ) )
 
   warlock.flow 'vendor-scripts-to-build',
     source: [ '<%= globs.vendor.js %>' ]
     merge: 'flow::scripts-to-build::60'
+  .add( 100, 'webapp-scripts.vendor', () ->
+    warlock.streams.map ( file ) ->
+      # We mark all files as vendor so we can handle them appropriately, if needed.
+      file.isVendor = true
+      return file
+  )
 
   ###
   # JavaScript: Build -> Compile
@@ -58,6 +72,7 @@ module.exports = ( warlock ) ->
     dest: '<%= paths.compile_assets %>'
     clean: true
     watch: false
+  .add( 10, 'webapp-sort', sortFilesByVendor, { raw: true } )
   .add( 50, 'webapp-concatjs', concat )
   .add( 90, 'webapp-minjs', uglify )
   .add( 100, 'webapp-tpl.compile-scripts', addToTemplateData( "paths.compile_assets" ) )

@@ -3,6 +3,8 @@ minifyCSS = require 'gulp-minify-css'
 csslint = require 'csslint'
 path = require 'path'
 
+util = require "./../lib/util"
+
 module.exports = ( warlock ) ->
   # A stream for adding files to the template data.
   # FIXME(JDM): I think this whole process is a little messy
@@ -13,6 +15,11 @@ module.exports = ( warlock ) ->
         filepath = path.join warlock.config( to ), file.relative
         warlock.config "template-data.webappStyles", [ filepath ], true
         file
+
+  sortFilesByVendor = ( options, stream ) ->
+    stream.collect()
+      .invoke( 'sort', [ util.sortVendorFirst warlock.config "globs.vendor.css" ] )
+      .flatten()
 
   ###
   # CSS: Source -> Build
@@ -72,11 +79,18 @@ module.exports = ( warlock ) ->
       return file if file.isNull() or not options.fail or file.csslint.success
       warlock.log.fatal "One or more CSS files contain errors, so I'm exiting now."
   )
-  .add( 100, 'webapp-tpl.styles', addToTemplateData( "paths.build_css" ) )
+  .add( 100, 'webapp-sort', sortFilesByVendor, { raw: true } )
+  .add( 110, 'webapp-tpl.styles', addToTemplateData( "paths.build_css" ) )
 
   warlock.flow 'vendor-styles-to-build',
     source: [ '<%= globs.vendor.css %>' ]
     merge: 'flow::styles-to-build::45'
+  .add( 100, 'webapp-styles.vendor', () ->
+    warlock.streams.map ( file ) ->
+      # We mark all files as vendor so we can handle them appropriately, if needed.
+      file.isVendor = true
+      return file
+  )
 
   ###
   # CSS: Build -> Compile
@@ -88,6 +102,7 @@ module.exports = ( warlock ) ->
     dest: '<%= paths.compile_assets %>'
     clean: true
     watch: false
+  .add( 10, 'webapp-sort', sortFilesByVendor, { raw: true } )
   .add( 50, 'webapp-concatcss', concat )
   .add( 90, 'webapp-minjs', minifyCSS )
   .add( 100, 'webapp-tpl.compile-styles', addToTemplateData( "paths.compile_assets" ) )
