@@ -16,11 +16,6 @@ module.exports = ( warlock ) ->
         warlock.config "template-data.webappStyles", [ filepath ], true
         file
 
-  sortFilesByVendor = ( options, stream ) ->
-    stream.collect()
-      .invoke( 'sort', [ util.sortVendorFirst warlock.config "globs.vendor.css" ] )
-      .flatten()
-
   ###
   # CSS: Source -> Build
   ###
@@ -79,7 +74,7 @@ module.exports = ( warlock ) ->
       return file if file.isNull() or not options.fail or file.csslint.success
       warlock.log.fatal "One or more CSS files contain errors, so I'm exiting now."
   )
-  .add( 100, 'webapp-sort', sortFilesByVendor, { raw: true } )
+  .add( 100, 'webapp-sort', util.sortFilesByVendor( warlock, "globs.vendor.css" ), { raw: true } )
   .add( 110, 'webapp-tpl.styles', addToTemplateData( "paths.build_css" ) )
 
   warlock.flow 'vendor-styles-to-build',
@@ -102,7 +97,7 @@ module.exports = ( warlock ) ->
     dest: '<%= paths.compile_assets %>'
     clean: true
     watch: false
-  .add( 10, 'webapp-sort', sortFilesByVendor, { raw: true } )
+  .add( 10, 'webapp-sort', util.sortFilesByVendor( warlock, "globs.vendor.css" ), { raw: true } )
   .add( 50, 'webapp-concatcss', concat )
   .add( 90, 'webapp-minjs', minifyCSS )
   .add( 100, 'webapp-tpl.compile-styles', addToTemplateData( "paths.compile_assets" ) )

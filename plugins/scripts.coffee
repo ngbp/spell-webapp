@@ -21,11 +21,6 @@ module.exports = ( warlock ) ->
 
         file
 
-  sortFilesByVendor = ( options, stream ) ->
-    stream.collect()
-      .invoke( 'sort', [ util.sortVendorFirst warlock.config "globs.vendor.js" ] )
-      .flatten()
-
   ###
   # JavaScript: Source -> Build
   ###
@@ -49,7 +44,7 @@ module.exports = ( warlock ) ->
 
       file
   )
-  .add( 100, 'webapp-sort', sortFilesByVendor, { raw: true } )
+  .add( 100, 'webapp-sort', util.sortFilesByVendor( warlock, "globs.vendor.js" ), { raw: true } )
   .add( 110, 'webapp-tpl.scripts', addToTemplateData( "paths.build_js" ) )
 
   warlock.flow 'vendor-scripts-to-build',
@@ -72,7 +67,7 @@ module.exports = ( warlock ) ->
     dest: '<%= paths.compile_assets %>'
     clean: true
     watch: false
-  .add( 10, 'webapp-sort', sortFilesByVendor, { raw: true } )
+  .add( 10, 'webapp-sort', util.sortFilesByVendor( warlock, "globs.vendor.js" ), { raw: true } )
   .add( 50, 'webapp-concatjs', concat )
   .add( 90, 'webapp-minjs', uglify )
   .add( 100, 'webapp-tpl.compile-scripts', addToTemplateData( "paths.compile_assets" ) )
