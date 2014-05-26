@@ -49,8 +49,7 @@
           "<%= paths.source_app %>/**/*.css"
         ],
         "js": [
-          "<%= paths.source_app %>/**/*.js",
-          "!<%= paths.source_app %>/**/*.spec.js"
+          "<%= paths.source_app %>/**/*.js"
         ],
         "assets": [
           "<%= paths.source_assets %>/**/*"
