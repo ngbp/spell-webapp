@@ -36,6 +36,7 @@ module.exports = ( warlock ) ->
       base: "<%= paths.source_app %>"
     tasks: [ 'webapp-build' ]
     watch: true
+    passive: true
 
   .add( 10, 'webapp-lintjs.lint', jshint )
   .add( 11, 'webapp-lintjs.reporter', ( options ) -> jshint.reporter( stylish ) )
@@ -47,6 +48,7 @@ module.exports = ( warlock ) ->
       base: "<%= paths.source_app %>"
     watch: true
     tasks: [ 'webapp-build' ]
+    passive: true
 
   .add( 10, 'webapp-lintjs.lint', jshint )
   .add( 11, 'webapp-lintjs.reporter', ( options ) -> jshint.reporter( stylish ) )
