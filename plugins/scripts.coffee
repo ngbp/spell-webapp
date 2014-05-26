@@ -21,6 +21,37 @@ module.exports = ( warlock ) ->
 
         file
 
+  lintFn = ( options ) ->
+    warlock.streams.map ( file ) ->
+      return file if file.isNull() or not options.fail
+
+      if not file.jshint?.success
+        warlock.fatal "One or more JS files contain errors, so I'm exiting now."
+
+      file
+
+  warlock.flow 'scripts-to-lint',
+    source: [ '<%= globs.source.js %>' ]
+    source_options:
+      base: "<%= paths.source_app %>"
+    tasks: [ 'webapp-build' ]
+    watch: true
+
+  .add( 10, 'webapp-lintjs.lint', jshint )
+  .add( 11, 'webapp-lintjs.reporter', ( options ) -> jshint.reporter( stylish ) )
+  .add( 12, 'webapp-lintjs.failOnError', lintFn)
+
+  warlock.flow 'test-scripts-to-lint',
+    source: [ '<%= globs.source.test.js %>' ]
+    source_options:
+      base: "<%= paths.source_app %>"
+    watch: true
+    tasks: [ 'webapp-build' ]
+
+  .add( 10, 'webapp-lintjs.lint', jshint )
+  .add( 11, 'webapp-lintjs.reporter', ( options ) -> jshint.reporter( stylish ) )
+  .add( 12, 'webapp-lintjs.failOnError', lintFn)
+
   ###
   # JavaScript: Source -> Build
   ###
@@ -33,17 +64,6 @@ module.exports = ( warlock ) ->
     dest: '<%= paths.build_js %>'
     clean: true
     watch: true
-  .add( 10, 'webapp-lintjs.lint', jshint )
-  .add( 11, 'webapp-lintjs.reporter', ( options ) -> jshint.reporter( stylish ) )
-  .add( 12, 'webapp-lintjs.failOnError', ( options ) ->
-    warlock.streams.map ( file ) ->
-      return file if file.isNull() or not options.fail
-
-      if not file.jshint?.success
-        warlock.fatal "One or more JS files contain errors, so I'm exiting now."
-
-      file
-  )
   .add( 100, 'webapp-sort', util.sortFilesByVendor( warlock, "globs.vendor.js" ), { raw: true } )
   .add( 110, 'webapp-tpl.scripts', addToTemplateData( "paths.build_js" ) )
 
