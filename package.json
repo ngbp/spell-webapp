@@ -33,9 +33,10 @@
       "webapp-compile"
     ],
     "paths": {
-      "source": "src",
-      "build": "build",
-      "compile": "bin",
+      "app_root": ".",
+      "source": "<%= paths.app_root %>/src",
+      "build": "<%= paths.app_root %>/build",
+      "compile": "<%= paths.app_root %>/bin",
       "source_app": "<%= paths.source %>/app",
       "build_js": "<%= paths.build %>/scripts",
       "build_css": "<%= paths.build %>/styles",
@@ -49,8 +50,7 @@
           "<%= paths.source_app %>/**/*.css"
         ],
         "js": [
-          "<%= paths.source_app %>/**/*.js",
-          "!<%= paths.source_app %>/**/*.spec.js"
+          "<%= paths.source_app %>/**/*.js"
         ],
         "assets": [
           "<%= paths.source_assets %>/**/*"
