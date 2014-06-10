@@ -4,8 +4,10 @@ util = module.exports = {}
 _inVendor = ( file, files ) ->
   included = -1
   # FIXME(jdm): There is a remote possibility of collisions here.
+  # FIXME(mm): Improved, but what if there are multiple files with exact same
+  # names that we want to include from different libraries? They'd still collide
   files.forEach ( f, idx ) ->
-    included = idx if f.substr( 0 - file.length ) is file
+    included = idx if f.substr( -1 - file.length ) is ( "/#{file}" )
 
   included
 
