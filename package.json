@@ -1,99 +1,120 @@
 {
-  "name": "warlock-spell-webapp",
-  "version": "1.0.0-alpha.2",
+  "name": "warlock-spell-browser",
+  "version": "1.0.0-RC1",
   "description": "A warlock spell to manage client-side web applications.",
-  "homepage": "https://github.com/ngbp/spell-webapp",
+  "homepage": "https://github.com/ngbp/spell-browser",
   "author": {
     "name": "Warlock Team",
     "url": "http://getwarlock.com"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/ngbp/spell-webapp.git"
+    "url": "git://github.com/ngbp/spell-browser.git"
   },
   "bugs": {
-    "url": "https://github.com/ngbp/spell-webapp"
+    "url": "https://github.com/ngbp/spell-browser/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/ngbp/spell-webapp/blob/master/LICENSE"
+      "url": "https://github.com/ngbp/spell-browser/blob/master/LICENSE"
     }
   ],
   "engines": {
     "node": ">= 0.10.0"
   },
   "keywords": [
-    "warlockplugin",
     "warlockspell"
   ],
   "warlock": {
-    "default": [
-      "webapp-build",
-      "webapp-compile"
-    ],
     "paths": {
-      "source": "src",
-      "build": "build",
-      "compile": "bin",
-      "source_app": "<%= paths.source %>/app",
-      "build_js": "<%= paths.build %>/scripts",
-      "build_css": "<%= paths.build %>/styles",
-      "source_assets": "<%= paths.source %>/assets",
-      "build_assets": "<%= paths.build %>/assets",
-      "compile_assets": "<%= paths.compile %>/assets"
+      "browser": {
+        "source": "src",
+        "build": "build",
+        "compile": "bin",
+        "source_app": "<%= paths.browser.source %>/app",
+        "build_js": "<%= paths.browser.build %>/scripts",
+        "build_css": "<%= paths.browser.build %>/styles",
+        "source_assets": "<%= paths.browser.source %>/assets",
+        "build_assets": "<%= paths.browser.build %>/assets",
+        "compile_assets": "<%= paths.browser.compile %>/assets"
+      }
     },
     "globs": {
-      "source": {
+      "browser": {
         "css": [
-          "<%= paths.source_app %>/**/*.css"
+          "<%= paths.browser.source_app %>/**/*.css"
         ],
         "js": [
-          "<%= paths.source_app %>/**/*.js",
-          "!<%= paths.source_app %>/**/*.spec.js"
+          "<%= paths.browser.source_app %>/**/*.js"
         ],
         "assets": [
-          "<%= paths.source_assets %>/**/*"
+          "<%= paths.browser.source_assets %>/**/*"
         ],
         "html": [
-          "<%= paths.source %>/index.html",
-          "<%= paths.source_app %>/**/*.html"
+          "<%= paths.browser.source %>/index.html",
+          "<%= paths.browser.source_app %>/**/*.html"
         ]
-      },
-      "vendor": {
-        "js": [],
-        "css": []
       }
     },
     "tasks": {
-      "webapp-lintjs": {
-        "lint": {
-          "bitwise": true,
-          "curly": true
-        },
-        "reporter": {},
-        "failOnError": {
-          "fail": true
-        }
-      },
-      "webapp-minjs": {
-        "outSourceMap": true
-      },
-      "webapp-lintcss": {
-        "failOnError": {
-          "fail": true
-        }
-      },
-      "webapp-concatjs": "<%= pkg.name %>-<%= pkg.version %>.min.js",
-      "webapp-concatcss": "<%= pkg.name %>-<%= pkg.version %>.min.css",
-      "webapp-html-template": {
-        "build": "<%= paths.build %>",
-        "compile": "<%= paths.compile %>"
-      }
+      "default": [ "browser-spell" ],
+      "browser-spell": [
+        "$$browser-js"
+      ]
     },
-    "template-data": {
-      "webappScripts": [],
-      "webappStyles": []
+    "pipelines": {
+      "browser-js": {
+        "files": [
+          "<%= globs.browser.js %>"
+        ],
+        "file_options": {
+          "base": "<%= paths.browser.source_app %>"
+        },
+        "dest": "<%= paths.browser.build_js %>",
+        "phases": {
+          "prod": [ "concat", "min" ]
+        },
+        "streams": {
+          "lint": {
+            "lint": {
+              "bitwise": true,
+              "curly": true
+            },
+            "failOnError": true
+          },
+          "min": {
+            "outSourceMap": true
+          },
+          "concat": "all.min.js"
+        }
+      },
+      "browser-vendorjs": {
+        "files": [ "<%= globs.browser.vendorjs %>" ],
+        "join": {
+          "target": "browser-js",
+          "before": "concat",
+          "reverse": true
+        }
+      },
+      "browser-css": {
+        "streams": {
+          "lint": {
+            "failOnError": {
+              "fail": true
+            }
+          },
+          "concat": "all.min.css"
+        },
+        "browser-html": {
+          "streams": {
+            "browser-html-template": {
+              "build": "<%= paths.build %>",
+              "compile": "<%= paths.compile %>"
+            }
+          }
+        }
+      }
     }
   },
   "peerDependencies": {
